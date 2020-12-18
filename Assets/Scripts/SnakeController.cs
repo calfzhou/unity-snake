@@ -16,7 +16,10 @@ public class SnakeController : MonoBehaviour
     private Vector3 down = new Vector3(0, 0, -1);
     private Vector3 left = new Vector3(-1, 0, 0);
     private Vector3 right = new Vector3(1, 0, 0);
+    private Vector3 raise = new Vector3(0, 1, 0);
+    private Vector3 fall = new Vector3(0, -1, 0);
     private Vector3 direction;
+    private Vector3 prevDirection;
     private float timer;
 
     // Start is called before the first frame update
@@ -46,16 +49,24 @@ public class SnakeController : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.W) && transform.GetChild(0).position.z <= head.transform.position.z) {
+        if (direction == raise && head.transform.position.y > 1f) {
+            direction = prevDirection;
+        } else if (direction == fall && head.transform.position.y < 1f) {
+            direction = prevDirection;
+        }
+
+        if (Input.GetKeyDown(KeyCode.X) && head.transform.position.y > 1f && direction != fall && direction != raise) {
+            FallDown();
+        } else if (Input.GetKeyDown(KeyCode.W) && transform.GetChild(0).position.z <= head.transform.position.z && direction != fall && direction != raise) {
             direction = up;
             head.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-        } else if (Input.GetKeyDown(KeyCode.S) && transform.GetChild(0).position.z >= head.transform.position.z) {
+        } else if (Input.GetKeyDown(KeyCode.S) && transform.GetChild(0).position.z >= head.transform.position.z && direction != fall && direction != raise) {
             direction = down;
             head.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-        } else if (Input.GetKeyDown(KeyCode.A) && transform.GetChild(0).position.x >= head.transform.position.x) {
+        } else if (Input.GetKeyDown(KeyCode.A) && transform.GetChild(0).position.x >= head.transform.position.x && direction != fall && direction != raise) {
             direction = left;
             head.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
-        } else if (Input.GetKeyDown(KeyCode.D) && transform.GetChild(0).position.x <= head.transform.position.x) {
+        } else if (Input.GetKeyDown(KeyCode.D) && transform.GetChild(0).position.x <= head.transform.position.x && direction != fall && direction != raise) {
             direction = right;
             head.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
         }
@@ -83,5 +94,15 @@ public class SnakeController : MonoBehaviour
         }
         ++score;
         canvas.transform.GetChild(1).GetComponent<Text>().text = "Score: " + score;
+    }
+
+    public void RaiseUp() {
+        prevDirection = direction;
+        direction = raise;
+    }
+
+    public void FallDown() {
+        prevDirection = direction;
+        direction = fall;
     }
 }
