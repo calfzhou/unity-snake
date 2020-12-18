@@ -22,6 +22,8 @@ public class GameOver : MonoBehaviour
     {
         if (coll.name == "Head" && canvas != null) {
             canvas.transform.GetChild(0).gameObject.SetActive(true);
+        } else if (coll.name == "Body(Clone)" && transform.name != "Body(Clone)") {
+            canvas.transform.GetChild(0).gameObject.SetActive(true);
         }
     }
 }
