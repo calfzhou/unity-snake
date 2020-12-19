@@ -9,6 +9,9 @@ public class SnakeController : MonoBehaviour
     public GameObject head;
     public GameObject canvas;
     public float threshold;
+    public Slider energyBar;
+    public float energyCostSpeed = 20f;
+    public float energyRecoverSpeed = 5f;
 
     private int length;
     private int score;
@@ -21,6 +24,8 @@ public class SnakeController : MonoBehaviour
     private Vector3 direction;
     private Vector3 prevDirection;
     private float timer;
+    private int speedUp;
+    private float energy;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +34,10 @@ public class SnakeController : MonoBehaviour
         score = 0;
         direction = up;
         timer = 0;
+        speedUp = 1;
+        energy = 100f;
+        energyBar.value = energy;
+
         for (int i = 0; i < length; i++) {
             GameObject body = Instantiate(bodyPrefab, transform);
             body.transform.position = new Vector3(
@@ -40,6 +49,7 @@ public class SnakeController : MonoBehaviour
             }
         }
         canvas.transform.GetChild(1).GetComponent<Text>().text = "Score: " + score;
+        canvas.transform.GetChild(2).GetComponent<Text>().text = "Interval: " + threshold;
     }
 
     // Update is called once per frame
@@ -48,6 +58,23 @@ public class SnakeController : MonoBehaviour
         if (canvas.transform.GetChild(0).gameObject.activeSelf) {
             return;
         }
+
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+            energy -= energyCostSpeed * Time.deltaTime;
+            if (energy >= 0) {
+                speedUp = 2;
+            } else {
+                speedUp = 1;
+                energy = 0;
+            }
+        } else {
+            speedUp = 1;
+            energy += energyRecoverSpeed * Time.deltaTime;
+            if (energy > 100f) {
+                energy = 100f;
+            }
+        }
+        energyBar.value = energy;
 
         if (direction == raise && head.transform.position.y > 1f) {
             direction = prevDirection;
@@ -71,7 +98,7 @@ public class SnakeController : MonoBehaviour
             head.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
         }
 
-        if (timer > threshold) {
+        if (timer > threshold / speedUp) {
             for (int i = length - 1; i > 0; i--) {
                 transform.GetChild(i).transform.position = transform.GetChild(i - 1).transform.position;
             }
@@ -94,6 +121,7 @@ public class SnakeController : MonoBehaviour
         }
         ++score;
         canvas.transform.GetChild(1).GetComponent<Text>().text = "Score: " + score;
+        canvas.transform.GetChild(2).GetComponent<Text>().text = "Interval: " + threshold;
     }
 
     public void RaiseUp() {
